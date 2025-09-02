@@ -26,22 +26,20 @@ const openai = new OpenAI({
 
 const router = express.Router();
 
-// ✅ Use these routes without auth
+// Use these routes without auth
 // 📋 GET ALL NOTES (regardless of user)
 router.get("/notes", getAllNotes);
 
 router.post("/notes", createNote);
 
-// ❌ Use these routes after implimenting auth
+// Use these routes after implementing auth
+
 // Add Note
 // router.post("/add-note", authUser, addNote);
 router.post("/add-note", authUser, createNote);
 
 // Edit Note
 router.put("/edit-note/:noteId", authUser, editNote);
-
-// Update isPinned
-router.put("/update-note-pinned/:noteId", authUser, togglePin);
 
 // Get all Notes by user
 router.get("/get-all-notes", authUser, getUserNotes);
@@ -54,6 +52,33 @@ router.get("/search-notes", authUser, searchUserNotes);
 
 // Get a note by ID (protected route)
 router.get("/get-note/:noteId", authUser, getNoteById);
+
+// Update note visibility (publish/unpublish)
+router.put("/notes/:noteId/visibility", authUser, async (req, res) => {
+  const { isPublic } = req.body;
+  const { user } = req.user;
+
+  try {
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.noteId, userId: user._id }, // Ensure the note belongs to the user
+      { isPublic },
+      { new: true } // Return the updated note
+    );
+
+    if (!note) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Note not found or unauthorized" });
+    }
+
+    res.status(200).json({ error: false, note });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+});
+
+// Routes for Public View
 
 // Get public profile by user ID
 router.get("/public-profile/:userId", async (req, res) => {
@@ -100,32 +125,9 @@ router.get("/public-notes/:userId", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: true, message: "Server error", details: err.message });
-  }
-});
-
-// Update note visibility (publish/unpublish)
-router.put("/notes/:noteId/visibility", authUser, async (req, res) => {
-  const { isPublic } = req.body;
-  const { user } = req.user;
-
-  try {
-    const note = await Note.findOneAndUpdate(
-      { _id: req.params.noteId, userId: user._id }, // Ensure the note belongs to the user
-      { isPublic },
-      { new: true } // Return the updated note
-    );
-
-    if (!note) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Note not found or unauthorized" });
-    }
-
-    res.status(200).json({ error: false, note });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: true, message: "Server error" });
+    res
+      .status(500)
+      .json({ error: true, message: "Server error", details: err.message });
   }
 });
 
@@ -306,5 +308,9 @@ Answer:
     answer: response.choices[0].message.content.trim(),
   });
 });
+
+// ❌ Routes not used by Frontend
+// Update isPinned
+router.put("/update-note-pinned/:noteId", authUser, togglePin);
 
 export default router;

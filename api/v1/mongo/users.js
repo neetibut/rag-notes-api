@@ -7,12 +7,6 @@ import { authUser } from "../../../middleware/auth.js";
 
 const router = express.Router();
 
-// ✅ No auth required
-// GET all users
-router.get("/users", getAllUsers);
-// POST a user
-router.post("/users", createUser);
-
 // Register a new user
 router.post("/auth/register", async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -44,7 +38,7 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-// Login a user - jwt signed token
+// Login a user - jwt signed token (token not in cookies)
 router.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -80,7 +74,7 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
-// Login a user - jwt signed token
+// Login a user - jwt signed token (token in cookies)
 router.post("/auth/cookie/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -183,6 +177,12 @@ router.get("/auth/verify", (req, res) => {
     res.status(401).json({ error: true, message: "Invalid token" });
   }
 });
+
+// ✅ No auth required
+// GET all users
+router.get("/users", getAllUsers);
+// POST a user
+router.post("/users", createUser);
 
 // ❌ Use after implementing auth
 // Create User account

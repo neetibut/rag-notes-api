@@ -1,6 +1,7 @@
 import { Note } from "../../../../models/Note.js";
 import { generateEmbedding } from "../../../../utils/generateEmbedding.js";
 
+// handler used for testing before implementing protected routes
 export const getAllNotes = async (_req, res) => {
   try {
     const notes = await Note.find().sort({ createdAt: -1, isPinned: -1 });
@@ -18,55 +19,7 @@ export const getAllNotes = async (_req, res) => {
   }
 };
 
-// handler used in unprotected route
-// export const createNote = async (req, res) => {
-//   const {
-//     title,
-//     content,
-//     tags = [], // default empty array
-//     isPinned = false,
-//     userId,
-//   } = req.body;
-
-//   // basic validation
-//   if (!title) {
-//     return res.status(400).json({ error: true, message: "Title is required" });
-//   }
-//   if (!content) {
-//     return res
-//       .status(400)
-//       .json({ error: true, message: "Content is required" });
-//   }
-//   if (!userId) {
-//     return res
-//       .status(400)
-//       .json({ error: true, message: "User ID is required" });
-//   }
-
-//   try {
-//     const note = await Note.create({
-//       title,
-//       content,
-//       tags,
-//       isPinned,
-//       userId,
-//     });
-
-//     return res.status(201).json({
-//       error: false,
-//       note,
-//       message: "Note created successfully",
-//     });
-//   } catch (err) {
-//     return res.status(500).json({
-//       error: true,
-//       message: "Failed to create note",
-//       details: err.message,
-//     });
-//   }
-// };
-
-// handler used in protected route
+// handlers used in protected routes
 export const addNote = async (req, res) => {
   const { title, content, tags = [], isPinned = false } = req.body;
 
@@ -104,73 +57,6 @@ export const addNote = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating note:", error);
-    return res.status(500).json({
-      error: true,
-      message: "Internal Server Error",
-    });
-  }
-};
-
-export const editNote = async (req, res) => {
-  const noteId = req.params.noteId;
-  const { title, content, tags, isPinned } = req.body;
-  const { user } = req.user;
-
-  if (!title && !content && !tags) {
-    return res
-      .status(400)
-      .json({ error: true, message: "No changes provided" });
-  }
-
-  try {
-    const note = await Note.findOne({ _id: noteId, userId: user._id });
-
-    if (!note) {
-      return res.status(404).json({ error: true, message: "Note not found" });
-    }
-
-    if (title) note.title = title;
-    if (content) note.content = content;
-    if (tags) note.tags = tags;
-    if (isPinned) note.isPinned = isPinned;
-
-    await note.save();
-
-    return res.json({
-      error: false,
-      note,
-      message: "Note updated successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Internal Server Error",
-    });
-  }
-};
-
-export const togglePin = async (req, res) => {
-  const noteId = req.params.noteId;
-  const { isPinned } = req.body;
-  const { user } = req.user;
-
-  try {
-    const note = await Note.findOne({ _id: noteId, userId: user._id });
-
-    if (!note) {
-      return res.status(404).json({ error: true, message: "Note not found" });
-    }
-
-    note.isPinned = isPinned;
-
-    await note.save();
-
-    return res.json({
-      error: false,
-      note,
-      message: "Note pinned status updated successfully",
-    });
-  } catch (error) {
     return res.status(500).json({
       error: true,
       message: "Internal Server Error",
@@ -221,6 +107,44 @@ export const getUserNotes = async (req, res) => {
   }
 };
 
+export const editNote = async (req, res) => {
+  const noteId = req.params.noteId;
+  const { title, content, tags, isPinned } = req.body;
+  const { user } = req.user;
+
+  if (!title && !content && !tags) {
+    return res
+      .status(400)
+      .json({ error: true, message: "No changes provided" });
+  }
+
+  try {
+    const note = await Note.findOne({ _id: noteId, userId: user._id });
+
+    if (!note) {
+      return res.status(404).json({ error: true, message: "Note not found" });
+    }
+
+    if (title) note.title = title;
+    if (content) note.content = content;
+    if (tags) note.tags = tags;
+    if (isPinned) note.isPinned = isPinned;
+
+    await note.save();
+
+    return res.json({
+      error: false,
+      note,
+      message: "Note updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 export const deleteUserNote = async (req, res) => {
   const noteId = req.params.noteId;
   const { user } = req.user;
@@ -237,6 +161,35 @@ export const deleteUserNote = async (req, res) => {
     return res.json({
       error: false,
       message: "Note deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const togglePin = async (req, res) => {
+  const noteId = req.params.noteId;
+  const { isPinned } = req.body;
+  const { user } = req.user;
+
+  try {
+    const note = await Note.findOne({ _id: noteId, userId: user._id });
+
+    if (!note) {
+      return res.status(404).json({ error: true, message: "Note not found" });
+    }
+
+    note.isPinned = isPinned;
+
+    await note.save();
+
+    return res.json({
+      error: false,
+      note,
+      message: "Note pinned status updated successfully",
     });
   } catch (error) {
     return res.status(500).json({
@@ -305,6 +258,7 @@ export const getNoteById = async (req, res) => {
   }
 };
 
+// this action has vector embedding
 export const createNote = async (req, res) => {
   const {
     title,
