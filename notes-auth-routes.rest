@@ -51,12 +51,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBhZ
 
 ### 6. Get all notes for the authenticated user
 GET http://localhost:3030/mongo/get-all-notes
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBhZDM2NGQxM2NmODM3NjcxMmIwYjkiLCJpYXQiOjE3NDU1NDQzNDcsImV4cCI6MTc0NTU0Nzk0N30.Xhe1tUZdosvQPiAxYPzcej5rJ0oiTSzAX2O_LqcLy-M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBhZDM2NGQxM2NmODM3NjcxMmIwYjkiLCJpYXQiOjE3NTcwMzMyNTIsImV4cCI6MTc1NzAzNjg1Mn0.8K9KyX7sGijM-0RmXDhSVMDXDkqvOZ-clxjSR8RVupI
 
 ### 7. Delete a note
 DELETE http://localhost:3030/mongo/delete-note/<NOTE_ID>
 Authorization: Bearer <TOKEN>
 
 ### 8. Search notes
-GET http://localhost:3030/mongo/search-notes?query=imagine
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBhZDM2NGQxM2NmODM3NjcxMmIwYjkiLCJpYXQiOjE3NDU1NDQzNDcsImV4cCI6MTc0NTU0Nzk0N30.Xhe1tUZdosvQPiAxYPzcej5rJ0oiTSzAX2O_LqcLy-M
+GET http://localhost:3030/mongo/search-notes?query=dragon
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBhZDM2NGQxM2NmODM3NjcxMmIwYjkiLCJpYXQiOjE3NTcwMzMyNTIsImV4cCI6MTc1NzAzNjg1Mn0.8K9KyX7sGijM-0RmXDhSVMDXDkqvOZ-clxjSR8RVupI
+
+

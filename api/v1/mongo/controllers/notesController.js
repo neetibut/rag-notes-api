@@ -199,6 +199,7 @@ export const togglePin = async (req, res) => {
   }
 };
 
+// lexical search
 export const searchUserNotes = async (req, res) => {
   const { user } = req.user;
   const { query } = req.query;
